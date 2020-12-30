@@ -85,12 +85,6 @@ extension CurrencyUITextFieldDelegate: UITextFieldDelegate {
     
     @discardableResult
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let shouldChangeCharactersInRange = passthroughDelegate?.textField?(textField,
-                                                                            shouldChangeCharactersIn: range,
-                                                                            replacementString: string) ?? true
-        guard shouldChangeCharactersInRange else {
-            return false
-        }
 
         // Store selected text range offset from end, before updating and reformatting the currency string.
         let lastSelectedTextRangeOffsetFromEnd = textField.selectedTextRangeOffsetFromEnd
@@ -103,16 +97,22 @@ extension CurrencyUITextFieldDelegate: UITextFieldDelegate {
         
         guard !string.isEmpty else {
             handleDeletion(in: textField, at: range)
-            return false
+            return passthroughDelegate?.textField?(textField,
+                                                   shouldChangeCharactersIn: range,
+                                                   replacementString: string) ?? false
         }
         guard string.hasNumbers else {
             addNegativeSymbolIfNeeded(in: textField, at: range, replacementString: string)
-            return false
+            return passthroughDelegate?.textField?(textField,
+                                                   shouldChangeCharactersIn: range,
+                                                   replacementString: string) ?? false
         }
         
         setFormattedText(in: textField, inputString: string, range: range)
         
-        return false
+        return passthroughDelegate?.textField?(textField,
+                                                                            shouldChangeCharactersIn: range,
+                                                                            replacementString: string) ?? false
     }
 }
 
